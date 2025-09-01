@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "Time Tracker - Chấm Công Thông Minh",
+  "version": "2.0.0",
+  "description": "Extension chấm công thế hệ mới: thông minh, tiện lợi và hiệu suất cao.",
+  
+  "permissions": [
+    "storage",
+    "notifications"
+  ],
+
+  "host_permissions": [
+    "https://timer.aipencil.name.vn/*"
+  ],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Chấm Công Thông Minh",
+    "default_icon": {
+      "16": "icons/logo.png",
+      "32": "icons/logo.png",
+      "48": "icons/logo.png",
+      "128": "icons/logo.png"
+    }
+  },
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "commands": {
+    "start-shift": {
+      "suggested_key": {
+        "default": "Alt+1"
+      },
+      "description": "Bắt đầu ca làm việc nhanh"
+    },
+    "end-shift": {
+      "suggested_key": {
+        "default": "Alt+2"
+      },
+      "description": "Kết thúc ca làm việc nhanh"
+    }
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "icons/logo.png"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+  "icons": {
+    "16": "icons/logo.png",
+    "32": "icons/logo.png",
+    "48": "icons/logo.png",
+    "128": "icons/logo.png"
+  }
+}

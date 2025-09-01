@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Time Tracker - Chấm Công Thông Minh</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-logo">
+                <img src="icons/logo.png" alt="Logo">
+            </div>
+            <div class="header-title">
+                <h2>Chấm Công Thông Minh</h2>
+                <p id="realTimeClock">--:--:--</p>
+            </div>
+        </div>
+
+        <div id="mainContent">
+            <!-- Employee Input View -->
+            <div id="employeeInputView">
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-user-shield icon"></i>
+                    <input type="text" id="employeeIdInput" placeholder="Nhập mã nhân viên..." autocomplete="off">
+                    <div id="suggestionBox"></div>
+                </div>
+                <button id="verifyBtn" class="action-btn primary-btn">
+                    <i class="fa-solid fa-check-circle"></i> Xác Minh
+                </button>
+            </div>
+
+            <!-- User Dashboard View -->
+            <div id="userDashboardView" style="display: none;">
+                <div class="user-info-card">
+                    <p>Xin chào, <strong id="userName"></strong></p>
+                    <p class="employee-code">Mã NV: <span id="employeeId"></span></p>
+                    <button id="logoutBtn" title="Đăng xuất (Nhấn đúp)">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    </button>
+                </div>
+
+                <div class="status-bar">
+                    <div id="statusIcon" class="status-icon idle">
+                        <i class="fa-solid fa-bed"></i>
+                    </div>
+                    <div class="status-text">
+                        <p id="statusTitle">Sẵn sàng làm việc</p>
+                        <p id="statusTimer">00:00:00</p>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="startBtn" class="action-btn start-btn">
+                        <i class="fa-solid fa-play"></i> Bắt Đầu (F1)
+                    </button>
+                    <button id="endBtn" class="action-btn end-btn">
+                        <i class="fa-solid fa-stop"></i> Kết Thúc (F2)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>
+                <span id="quickStats"></span>
+                <i class="fa-solid fa-circle-info" id="infoTooltip" title="F1: Bắt đầu | F2: Kết thúc | Enter: Xác minh | Esc: Đóng"></i>
+            </p>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p id="loadingText">Đang xử lý...</p>
+    </div>
+
+    <!-- Custom Notification -->
+    <div id="notification" class="notification">
+        <div class="notification-content">
+            <i id="notificationIcon" class="fa-solid"></i>
+            <p id="notificationMessage"></p>
+        </div>
+        <div class="notification-progress"></div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
