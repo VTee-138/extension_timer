@@ -61,8 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         verifyEmployee: (employeeCode) => api._call(`/api/users/${employeeCode}`),
         checkActiveSession: (employeeCode) => api._call(`/api/users/active-session/${employeeCode}`),
-        startShift: (userId, employeeCode) => api._call('/api/time-logs', 'POST', { 
-            user_id: userId, 
+        startShift: (employeeCode) => api._call('/api/time-logs', 'POST', { 
             employee_code: employeeCode,
             start_time: new Date().toISOString() 
         }),
@@ -189,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!state.currentUser) return;
             ui.showLoading('Bắt đầu ca làm việc...');
             try {
-                const result = await api.startShift(state.currentUser.id, state.currentUser.employeeCode);
+                const result = await api.startShift(state.currentUser.employeeCode);
                 if (result.success) {
                     state.currentSession = {
                         id: result.data.id,
