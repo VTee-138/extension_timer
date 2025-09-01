@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         endShift: (sessionId) => api._call(`/api/time-logs/${sessionId}`, 'PUT', { 
             end_time: new Date().toISOString() 
         }),
+        getStats: (employeeCode) => api._call(`/api/stats/${employeeCode}`),
     };
 
     // --- UI Update Functions ---
@@ -116,18 +117,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         updateSessionTimer: () => {
-            if (!state.currentSession || !state.currentSession.startTime) return;
-            const now = new Date();
-            const start = new Date(state.currentSession.startTime);
-            const sessionSeconds = Math.floor((now - start) / 1000);
-            
+            let sessionSeconds = 0;
+            if (state.isWorking && state.currentSession && state.currentSession.startTime) {
+                const now = new Date();
+                const start = new Date(state.currentSession.startTime);
+                sessionSeconds = Math.floor((now - start) / 1000);
+            }
+
             const totalSeconds = state.totalAccumulatedSeconds + sessionSeconds;
 
-            const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-            const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            const total_h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            const total_m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
             
-            statusTimer.textContent = `${String(Math.floor(sessionSeconds / 3600)).padStart(2, '0')}:${String(Math.floor((sessionSeconds % 3600) / 60)).padStart(2, '0')}:${String(sessionSeconds % 60).padStart(2, '0')}`;
-            quickStats.textContent = `Đã làm`;
+            const session_h = String(Math.floor(sessionSeconds / 3600)).padStart(2, '0');
+            const session_m = String(Math.floor((sessionSeconds % 3600) / 60)).padStart(2, '0');
+            const session_s = String(sessionSeconds % 60).padStart(2, '0');
+
+            statusTimer.textContent = `${session_h}:${session_m}:${session_s}`;
+            
+            if (totalSeconds > 0) {
+                quickStats.textContent = `Tổng đã làm: ${total_h}h ${total_m}m`;
+            } else {
+                quickStats.textContent = '';
+            }
         },
         renderSuggestions: (codes) => {
             suggestionBox.innerHTML = codes.map(code => `<div class="suggestion-item">${code}</div>`).join('');
@@ -165,6 +177,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 await chrome.storage.local.set({ currentUser: user });
                 showNotification(`Chào mừng, ${user.fullName}!`, 'success');
                 
+                // Fetch total stats
+                const statsResult = await api.getStats(user.employeeCode);
+                state.totalAccumulatedSeconds = statsResult.data.total_seconds || 0;
+
                 // Check for active session
                 const sessionResult = await api.checkActiveSession(user.employeeCode);
                 if (sessionResult.has_active_session) {
@@ -212,14 +228,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await api.endShift(state.currentSession.id);
                 if (result.success) {
                     const duration = result.data.duration_seconds;
-                    const h = Math.floor(duration / 3600);
-                    const m = Math.floor((duration % 3600) / 60);
                     showNotification(`Kết thúc ca làm việc!`, 'success');
+                    // Update total accumulated seconds
+                    state.totalAccumulatedSeconds += duration;
                 }
                 state.isWorking = false;
                 state.currentSession = null;
                 await chrome.storage.local.remove(['currentSession', 'isWorking']);
-                quickStats.textContent = '';
+                
+                ui.updateSessionTimer(); // Refresh stats display
                 ui.updateStatus();
             } catch (error) {
                 // Error is already shown by api._call
@@ -297,6 +314,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // If user is logged in, verify active session with server
             if (state.currentUser) {
+                // Fetch total stats first
+                try {
+                    const statsResult = await api.getStats(state.currentUser.employeeCode);
+                    state.totalAccumulatedSeconds = statsResult.data.total_seconds || 0;
+                } catch (e) {
+                    console.error("Failed to fetch stats", e);
+                    // Don't block loading if stats fail, just show 0
+                    state.totalAccumulatedSeconds = 0;
+                }
+
                 const sessionResult = await api.checkActiveSession(state.currentUser.employeeCode);
                 if (sessionResult.has_active_session) {
                     state.currentSession = {
